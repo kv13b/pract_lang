@@ -1,19 +1,15 @@
-import React from 'react'
-import { productsList } from './store/ProductList'
-import Product from './component/Product'
 import "./App.css"
 import { useSelector } from 'react-redux'
+import Header from './component/Header'
+import { Outlet } from 'react-router-dom'
 function App() {
-  const proList = useSelector((state) => state.products)
+  const proList = useSelector((state) => state)
   console.log(proList)
   return (
-    <div className='products-container'>
-      {
-        proList.map(({ id, title, rating, price, image }) =>
-          <Product key={id} title={title} rating={rating.rate} price={price} imageUrl={image} />
-        )
-      }
-    </div>
+    <>
+      <Header />
+      <Outlet />
+    </>
   )
 }
 
