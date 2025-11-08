@@ -1,3 +1,29 @@
+# Folder1 
+# 🛍️ React + Redux Shopping Cart App
+
+A simple e-commerce frontend built with **React**, **Redux**, and **React Router DOM**.  
+This app demonstrates product listing, cart management, and navigation using global state. 
+---
+
+## ⚙️ Setup & Run
+
+```bash
+# Clone the repo
+git clone https://github.com/kv13b/pract_lang.git
+
+# Go to the React app folder
+cd pract_lang/<your-folder-name>
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+
+```
+
+
+# Folder2
 # 🚀 GraphQL Server with Apollo and Express
 
 A simple GraphQL server built using **Apollo Server**, **Express 5**, and **Axios**.  
