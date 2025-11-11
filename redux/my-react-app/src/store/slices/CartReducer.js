@@ -1,5 +1,4 @@
-import { act } from "react"
-
+import { produce } from "immer"
 // Action Types
 export const CART_ADD_ITEM = 'cart/addItem'
 const CART_REMOVE_ITEM = 'cart/removeItem'
@@ -8,12 +7,12 @@ const CART_ITEM_DECREASE_QUANTITY = 'cart/decreaseItemQuantity'
 
 // Action Creators
 export function addCartItem(productData) {
-  console.log(productData,"proda")
+  console.log(productData, "proda")
   return { type: CART_ADD_ITEM, payload: productData }
 }
 
 export function removeCartItem(productId) {
-  return { type: CART_ADD_ITEM, payload: { productId } }
+  return { type: CART_REMOVE_ITEM, payload: { productId } }
 }
 
 export function decreaseCartItemQuantity(productId) {
@@ -31,43 +30,32 @@ export function increaseCartItemQuantity(productId) {
 }
 
 // Reducer
-export default function cartReducer(state = [], action) {
-  switch (action.type) {
-    case CART_ADD_ITEM:
-      const cartItem=state.find((ci)=>ci.productId===action.payload.productId)
-      console.log(action.payload,"this is cartitem");
-      if(cartItem){
-        return state.map((ci)=>{
-          if(ci.productId===cartItem.productId){
-            return {...ci,quantity:ci.quantity+1}
-          }
-          return ci;
-        });
-      }
-      console.log(state,"state")
-      return [...state, {...action.payload,quantity:1}]
-    case CART_REMOVE_ITEM:
-      return state.filter(
-        (cartItem) => cartItem.productId !== action.payload.productId
-      )
-    case CART_ITEM_INCREASE_QUANTITY:
-      return state.map((cartItem) => {
-        if (cartItem.productId === action.payload.productId) {
-          return { ...cartItem, quantity: cartItem.quantity + 1 }
+export default function cartReducer(originalstate = [], action) {
+  return produce(originalstate, (state) => {
+    const cartItem = state.findIndex((ci) => ci.productId === action.payload.productId)
+    switch (action.type) {
+      case CART_ADD_ITEM:
+        console.log(action.payload, "this is cartitem");
+        if (cartItem !== -1) {
+          state[cartItem].quantity += 1;
+          return state;
         }
-        return cartItem
-      })
-
-    case CART_ITEM_DECREASE_QUANTITY:
-      return state
-        .map((cartItem) => {
-          if (cartItem.productId === action.payload.productId) {
-            return { ...cartItem, quantity: cartItem.quantity - 1 }
-          }
-          return cartItem
-        })
-        .filter((cartItem) => cartItem.quantity > 0)
-    default:
-      return state
-  }
+        state.push({ ...action.payload, quantity: 1 });
+        return state;
+      case CART_REMOVE_ITEM:
+        state.splice(cartItem, 1);
+        return state;
+      case CART_ITEM_INCREASE_QUANTITY:
+        state[cartItem].quantity += 1;
+        return state;
+      case CART_ITEM_DECREASE_QUANTITY:
+        state[cartItem].quantity -= 1;
+        if (state[cartItem].quantity === 0) {
+          state.splice(cartItem, 1);
+        }
+        return state;
+      default:
+        return state
+    }
+  })
 }
