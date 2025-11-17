@@ -3,8 +3,13 @@ import { useSelector } from 'react-redux'
 import CartItem from '../component/CartItme'
 
 export default function Cart() {
-  const cartItems = useSelector((state) => state.cartItems)
-  console.log(cartItems,"ci");
+  const cartItems = useSelector(({ products, cartItems }) => {
+    return cartItems.list.map(({ productId, quantity }) => {
+      const cartPro = products.list.find((pro) => (pro.id === productId))
+      return { ...cartPro, quantity }
+    })
+  })
+  console.log(cartItems, "ci");
   const cart = useSelector((state) => state);
   console.log("cart", cart)
   return (
@@ -18,15 +23,15 @@ export default function Cart() {
           <div className="total">Total</div>
         </div>
         {cartItems.map(
-          ({ productId, title, rating, price, imageUrl, quantity }) => (
+          ({ id, title, rating, price, image, quantity }) => (
             <CartItem
-              key={productId}
-              productId={productId}
+              key={id}
+              productId={id}
               title={title}
               price={price}
               quantity={quantity}
-              imageUrl={imageUrl}
-              rating={rating}
+              imageUrl={image}
+              rating={rating.rate}
             />
           )
         )}

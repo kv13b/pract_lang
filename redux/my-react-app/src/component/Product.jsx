@@ -7,7 +7,7 @@ export default function Product({productId, title, rating, price, imageUrl }) {
   const dispatch=useDispatch();
     const handleAddToCart = () => {
     console.log("Adding product to cart:", { productId, title, rating, price, imageUrl });
-    dispatch(addCartItem({ productId, title, rating, price, imageUrl }));
+    dispatch(addCartItem({ productId }));
   };
   const handleAddToWishList=()=>{
     dispatch(addWishListItem({ productId, title, rating, price, imageUrl }));
