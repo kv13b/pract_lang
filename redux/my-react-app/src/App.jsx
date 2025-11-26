@@ -4,7 +4,7 @@ import Header from './component/Header'
 import { Outlet } from 'react-router-dom'
 function App() {
   const proList = useSelector((state) => state)
-  console.log(proList)
+  console.log(proList,"prolist")
   return (
     <>
       <Header />

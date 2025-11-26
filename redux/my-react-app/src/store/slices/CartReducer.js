@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSelector, createSlice } from "@reduxjs/toolkit"
 
 const findItemIndex = (state, action) => state.findIndex((ci) => ci.productId === action.payload.productId)
 const slice = createSlice({
@@ -41,5 +41,14 @@ const slice = createSlice({
   }
 })
 console.log(slice, "slice");
+export const getCartItems = createSelector(
+  [(state) => state.cartItems.list, (state) => state.products.list],
+  (cartItems, products) => {
+    return cartItems.map(({ productId, quantity }) => {
+      const product = products.find((pro) => pro.id === productId);
+      return { ...product, quantity };
+    });
+  }
+);
 export const { addCartItem, removeCartItem, increaseCartItemQuantity, decreaseCartItemQuantity } = slice.actions;
 export default slice.reducer;

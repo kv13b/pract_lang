@@ -1,14 +1,16 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import CartItem from '../component/CartItme'
+import { getCartItems } from '../store/slices/CartReducer';
 
 export default function Cart() {
-  const cartItems = useSelector(({ products, cartItems }) => {
-    return cartItems.list.map(({ productId, quantity }) => {
-      const cartPro = products.list.find((pro) => (pro.id === productId))
-      return { ...cartPro, quantity }
-    })
-  })
+  // const cartItems = useSelector(({ products, cartItems }) => {
+  //   return cartItems.list.map(({ productId, quantity }) => {
+  //     const cartPro = products.list.find((pro) => (pro.id === productId))
+  //     return { ...cartPro, quantity }
+  //   })
+  // })
+  const cartItems = useSelector(getCartItems);
   console.log(cartItems, "ci");
   const cart = useSelector((state) => state);
   console.log("cart", cart)
