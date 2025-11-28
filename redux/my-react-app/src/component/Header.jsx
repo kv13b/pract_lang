@@ -4,7 +4,7 @@ import CartIcon from '../assets/cart-icon.svg'
 import Heart from "../assets/heart.svg"
 import { useDispatch, useSelector } from 'react-redux'
 import "../App.css"
-import { fetchProducts, fetchProductsError, updateAllProducts } from '../store/slices/productsReducer'
+import { fetchProducts, fetchProductsError, fetchProItems, updateAllProducts } from '../store/slices/productsReducer'
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -19,6 +19,7 @@ export default function Header() {
       }
     })
   }, [])
+//  dispatch(fetchProItems())
   const cartItems = useSelector((state) => state.cartItems.list)
   const wishItem = useSelector((state) => state.wishList);
   console.log(wishItem, "wish");

@@ -1,10 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { productsList } from '../ProductList'
-import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
-// export default function productsReducer(state = productsList) {
-//   return state
-// }
+// const dispatch = useDispatch();
 const slice = createSlice({
   name: 'product',
   initialState: {
@@ -29,4 +27,16 @@ const slice = createSlice({
 })
 
 export const { updateAllProducts, fetchProducts, fetchProductsError } = slice.actions;
+
+export const fetchProItems = (dispatch) => {
+  dispatch(fetchProducts());
+  fetch('https://fakestoreapi.com/products')
+    .then((res) => res.json())
+    .then((data) => {
+      dispatch(updateAllProducts(data))
+    })
+    .catch(() => {
+      dispatch(fetchProductsError())
+    })
+}
 export default slice.reducer;
