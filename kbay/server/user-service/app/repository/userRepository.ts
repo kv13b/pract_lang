@@ -1,5 +1,6 @@
 export class UserRepository {
-    constructor() {
-        
+    constructor() { }
+    async createUserOperation() {
+        console.log("UserRepository: createUserOperation called");
     }
 }

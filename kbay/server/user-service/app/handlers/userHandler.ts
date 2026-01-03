@@ -1,12 +1,16 @@
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { UserService } from "../service/userService";
+import { errorResponse } from "../utility/response";
+import  middy from "@middy/core";
+import jsonBodyParser from "@middy/http-json-body-parser";
+import { container } from "tsyringe";
 
-const service = new UserService();
+const service = container.resolve(UserService);
 
-export const signup = async (event: APIGatewayProxyEventV2) => {
+export const signup = middy((event: APIGatewayProxyEventV2) => {
     console.log("Signup event:", event);
     return service.CreateUser(event);
-};
+}).use(jsonBodyParser());
 
 export const login = async (event: APIGatewayProxyEventV2) => {
     console.log("Login event:", event);
@@ -19,41 +23,38 @@ export const verify = async (event: APIGatewayProxyEventV2) => {
 };
 
 export const profile = async (event: APIGatewayProxyEventV2) => {
-    console.log("Profile event:", event);
-    return {
-        statusCode: 200,
-        headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-            message: "User signed up successfully!"
-        })
-    };
+    const httpMethod = event.requestContext.http.method;
+    if (httpMethod === "POST") {
+        return service.CreateProfile(event);
+    } else if (httpMethod === "GET") {
+        return service.GetProfile(event);
+    } else if (httpMethod === "PUT") {
+        return service.EditProfile(event);
+    } else {
+        return errorResponse(404, "Unsupported HTTP method for profile");
+    }
 };
 export const cart = async (event: APIGatewayProxyEventV2) => {
-    console.log("Cart event:", event);
-    return {
-        statusCode: 200,
-        headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-            message: "User signed up successfully!"
-        })
-    };
+    const httpMethod = event.requestContext.http.method;
+    if (httpMethod === "POST") {
+        return service.CreateCart(event);
+    } else if (httpMethod === "PUT") {
+        return service.UpdateCart(event);
+    } else if (httpMethod === "GET") {
+        return service.GetCart(event);
+    } else {
+        return errorResponse(404, "Unsupported HTTP method for cart");
+    }
 };
 export const payment = async (event: APIGatewayProxyEventV2) => {
-    console.log("Payment event:", event);
-    return {
-        statusCode: 200,
-        headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-            message: "User signed up successfully!"
-        })
-    };
+    const httpMethod = event.requestContext.http.method;
+    if (httpMethod === "POST") {
+        return service.CreatePayment(event);
+    } else if (httpMethod === "GET") {
+        return service.GetPayment(event);
+    } else if (httpMethod === "PUT") {
+        return service.UpdatePayment(event);
+    } else {
+        return errorResponse(404, "Unsupported HTTP method for payment");
+    }
 };
