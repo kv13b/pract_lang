@@ -2,6 +2,8 @@ import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { successResponse } from "../utility/response";
 import type { UserRepository } from "../repository/userRepository";
 import { autoInjectable } from "tsyringe";
+import { plainToClass } from "class-transformer";
+import { SignUpInput } from "../models/dto/SignUpInput";
 
 @autoInjectable()
 export class UserService {
@@ -12,7 +14,7 @@ export class UserService {
 
     async CreateUser(event: APIGatewayProxyEventV2) {
         const body=event.body;
-        console.log("CreateUser body:", body);
+        const input=plainToClass(SignUpInput,body);
         await this.repository.createUserOperation();
         return successResponse({ message: "User created successfully!" });
     }
