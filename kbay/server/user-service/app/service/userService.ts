@@ -1,9 +1,10 @@
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
-import { successResponse } from "../utility/response";
+import { errorResponse, successResponse } from "../utility/response";
 import type { UserRepository } from "../repository/userRepository";
 import { autoInjectable } from "tsyringe";
-import { plainToClass } from "class-transformer";
+import { plainToClass, plainToInstance } from "class-transformer";
 import { SignUpInput } from "../models/dto/SignUpInput";
+import { appValidationError } from "../utility/error";
 
 @autoInjectable()
 export class UserService {
@@ -13,10 +14,15 @@ export class UserService {
     }
 
     async CreateUser(event: APIGatewayProxyEventV2) {
-        const body=event.body;
-        const input=plainToClass(SignUpInput,body);
-        await this.repository.createUserOperation();
-        return successResponse({ message: "User created successfully!" });
+        if (!event.body) {
+            return errorResponse(400, "Request body is required");
+        }
+        const payload = JSON.parse(event.body);
+        const input = plainToInstance(SignUpInput, payload);
+        const errors = await appValidationError(input);
+        if (errors) return errorResponse(404, errors)
+        // await this.repository.createUserOperation();
+        return successResponse(input);
     }
     async userLogin(event: APIGatewayProxyEventV2) {
         return successResponse({ message: "User logged in successfully!" });
