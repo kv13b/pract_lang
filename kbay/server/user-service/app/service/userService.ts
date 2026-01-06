@@ -14,10 +14,14 @@ export class UserService {
     }
 
     async CreateUser(event: APIGatewayProxyEventV2) {
+        console.log("CreateUser event body:", event.body);
         if (!event.body) {
             return errorResponse(400, "Request body is required");
         }
-        const payload = JSON.parse(event.body);
+        const payload =
+            typeof event.body === "string"
+                ? JSON.parse(event.body)
+                : event.body;
         const input = plainToInstance(SignUpInput, payload);
         const errors = await appValidationError(input);
         if (errors) return errorResponse(404, errors)
