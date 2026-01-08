@@ -35,7 +35,7 @@ export class UserService {
             salt:salt,
             userType:"BUYER"
         });
-        return successResponse(data);
+        return successResponse(input);//data
     }
     async userLogin(event: APIGatewayProxyEventV2) {
         return successResponse({ message: "User logged in successfully!" });
