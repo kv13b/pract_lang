@@ -10,32 +10,36 @@ import { getSalt, hashPassword } from "../utility/password";
 @autoInjectable()
 export class UserService {
     repository: UserRepository;
-    constructor(repository: UserRepository) {
-        this.repository = repository;
+    constructor(repository?: UserRepository) {
+        this.repository = repository || new (require('../repository/userRepository').UserRepository)();
     }
-
     async CreateUser(event: APIGatewayProxyEventV2) {
-        console.log("CreateUser event body:", event.body);
-        if (!event.body) {
-            return errorResponse(400, "Request body is required");
+        try {
+            console.log("CreateUser event body:", event.body);
+            if (!event.body) {
+                return errorResponse(400, "Request body is required");
+            }
+            const payload =
+                typeof event.body === "string"
+                    ? JSON.parse(event.body)
+                    : event.body;
+            const input = plainToInstance(SignUpInput, payload);
+            const errors = await appValidationError(input);
+            if (errors) return errorResponse(404, errors)
+            const salt = await getSalt();
+            const hashedPassword = await hashPassword(input.password, salt);
+            const data = await this.repository.CreateAccount({
+                email: input.email,
+                password: hashedPassword,
+                phone: input.phone,
+                salt: salt,
+                userType: "BUYER"
+            });
+            return successResponse(data as Object);//data
+
+        } catch (err) {
+            return errorResponse(500, err);
         }
-        const payload =
-            typeof event.body === "string"
-                ? JSON.parse(event.body)
-                : event.body;
-        const input = plainToInstance(SignUpInput, payload);
-        const errors = await appValidationError(input);
-        if (errors) return errorResponse(404, errors)
-        const salt=await getSalt();
-        const hashedPassword=await hashPassword(input.password, salt);
-        const data=await this.repository.CreateAccount({
-            email:input.email,
-            password:hashedPassword,
-            phone:input.phone,
-            salt:salt,
-            userType:"BUYER"
-        });
-        return successResponse(input);//data
     }
     async userLogin(event: APIGatewayProxyEventV2) {
         return successResponse({ message: "User logged in successfully!" });

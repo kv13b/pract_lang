@@ -1,6 +1,7 @@
 import type { UserModel } from "../models/UserModel";
 import { DBClient } from "../utility/dbClient";
-
+import { injectable } from "tsyringe";
+@injectable()
 export class UserRepository {
     constructor() { }
 
@@ -14,5 +15,17 @@ export class UserRepository {
         if (res.rows.length > 0) {
             return res.rows[0] as UserModel;
         }
+    }
+    async GetUserByEmail(email: string) {
+         const client = DBClient();
+        await client.connect();
+                const query = `SELECT user_id, email, password, phone, salt FROM "users" WHERE email = $1`;
+                const values = [email];
+        const res = await client.query(query, values);
+        await client.end();
+        if (res.rows.length < 1) {
+            return new Error("User not found");
+        }
+         return res.rows[0] as UserModel;
     }
 }

@@ -1,10 +1,12 @@
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { UserService } from "../service/userService";
+import { UserRepository } from "../repository/userRepository";
 import { errorResponse } from "../utility/response";
 import  middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import { container } from "tsyringe";
 
+container.register("UserRepository", { useClass: UserRepository });
 const service = container.resolve(UserService);
 
 export const signup = middy((event: APIGatewayProxyEventV2) => {
