@@ -5,7 +5,8 @@ import { autoInjectable } from "tsyringe";
 import { plainToClass, plainToInstance } from "class-transformer";
 import { SignUpInput } from "../models/dto/SignUpInput";
 import { appValidationError } from "../utility/error";
-import { getSalt, hashPassword } from "../utility/password";
+import { getSalt, hashPassword, validatePassword } from "../utility/password";
+import { LoginInput } from "../models/dto/LoginInput";
 
 @autoInjectable()
 export class UserService {
@@ -36,13 +37,32 @@ export class UserService {
                 userType: "BUYER"
             });
             return successResponse(data as Object);//data
-
         } catch (err) {
             return errorResponse(500, err);
         }
     }
     async userLogin(event: APIGatewayProxyEventV2) {
-        return successResponse({ message: "User logged in successfully!" });
+        try {
+            console.log("CreateUser event body:", event.body);
+            if (!event.body) {
+                return errorResponse(400, "Request body is required");
+            }
+            const payload =
+                typeof event.body === "string"
+                    ? JSON.parse(event.body)
+                    : event.body;
+            const input = plainToInstance(LoginInput, payload);
+            const errors = await appValidationError(input);
+            if (errors) return errorResponse(404, errors)
+            const data = await this.repository.GetUserByEmail(input.email);
+            // const verified=await validatePassword(input.password, data.password, data.salt);
+            // if(!verified){
+            //     return errorResponse(401, "Invalid password");
+            // }
+            return successResponse(data as Object);//data
+        } catch (err) {
+            return errorResponse(500, err);
+        }
     }
     async VerifyUser(event: APIGatewayProxyEventV2) {
         return successResponse({ message: "User verified successfully!" });
