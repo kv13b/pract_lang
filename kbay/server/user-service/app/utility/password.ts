@@ -23,6 +23,7 @@ export const GetToken = ({ email, password, phone, userType }: UserModel) => {
 }
 export const VerifyToken = async (token:string):Promise<UserModel |false>=>{
   try{
+    console.log("verifying token",token);
     if(token!==""){
       const decoded =await jwt.verify(token, APP_SECRET) as UserModel;
       return decoded;

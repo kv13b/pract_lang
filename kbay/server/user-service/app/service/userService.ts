@@ -5,8 +5,9 @@ import { autoInjectable } from "tsyringe";
 import { plainToClass, plainToInstance } from "class-transformer";
 import { SignUpInput } from "../models/dto/SignUpInput";
 import { appValidationError } from "../utility/error";
-import { getSalt, GetToken, hashPassword, validatePassword } from "../utility/password";
+import { getSalt, GetToken, hashPassword, validatePassword, VerifyToken } from "../utility/password";
 import { LoginInput } from "../models/dto/LoginInput";
+import { GenerateAccessCode, SendVerification } from "../utility/notification";
 
 @autoInjectable()
 export class UserService {
@@ -59,14 +60,32 @@ export class UserService {
                 return errorResponse(404, data.message);
             }
             const verified = await validatePassword(input.password, data.password);
-            if(!verified){
+            if (!verified) {
                 return errorResponse(401, "Invalid password");
             }
             const token = GetToken(data);
-            return successResponse({token:token});
+            return successResponse({ token: token });
         } catch (err) {
             return errorResponse(500, err);
         }
+    }
+    async GetVerification(event: APIGatewayProxyEventV2) {
+        const authHeader =
+            event.headers.authorization || event.headers.Authorization;
+        if (!authHeader) {
+            return {
+                statusCode: 401,
+                body: JSON.stringify({ message: "Authorization header missing" }),
+            };
+        }
+        const token = authHeader.replace("Bearer ", "").trim();
+        const payload = await VerifyToken(token!);
+        if (payload) {
+            const { code, expiry } = GenerateAccessCode();
+            const response = await SendVerification(code, payload.phone);
+            return successResponse({ message: "Verification code sent successfully!" });
+        }
+
     }
     async VerifyUser(event: APIGatewayProxyEventV2) {
         return successResponse({ message: "User verified successfully!" });

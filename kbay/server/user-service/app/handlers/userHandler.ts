@@ -2,7 +2,7 @@ import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { UserService } from "../service/userService";
 import { UserRepository } from "../repository/userRepository";
 import { errorResponse } from "../utility/response";
-import  middy from "@middy/core";
+import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import { container } from "tsyringe";
 
@@ -20,8 +20,15 @@ export const login = middy((event: APIGatewayProxyEventV2) => {
 }).use(jsonBodyParser());
 
 export const verify = async (event: APIGatewayProxyEventV2) => {
-    console.log("Verify event:", event);
-    return service.VerifyUser(event);
+    const httpMethod = event.requestContext.http.method;
+    if (httpMethod === "POST") {
+        return service.VerifyUser(event);
+    } else if (httpMethod === "GET") {
+        return service.GetVerification(event);
+    } else {
+        return errorResponse(404, "Unsupported HTTP method for profile");
+    }
+
 };
 
 export const profile = async (event: APIGatewayProxyEventV2) => {
