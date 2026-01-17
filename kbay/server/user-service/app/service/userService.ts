@@ -82,7 +82,7 @@ export class UserService {
         const payload = await VerifyToken(token!);
         if (payload) {
             const { code, expiry } = GenerateAccessCode();
-            const response = await SendVerification(code, payload.phone);
+            // const response = await SendVerification(code, payload.phone);
             return successResponse({ message: "Verification code sent successfully!" });
         }
 
