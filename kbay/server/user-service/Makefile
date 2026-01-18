@@ -2,4 +2,8 @@ start_db:
 	docker-compose up -d
 stop_db:
 	docker-compose down
-.PHONY: start_db stop_db
+migrate:
+	db-migrate up
+migrate_down:
+	db-migrate down
+.PHONY: start_db stop_db migrate migrate_down
