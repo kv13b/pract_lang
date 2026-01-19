@@ -80,8 +80,11 @@ export class UserService {
         }
         const token = authHeader.replace("Bearer ", "").trim();
         const payload = await VerifyToken(token!);
+        console.log("Payload from token:", payload);
         if (payload) {
             const { code, expiry } = GenerateAccessCode();
+            await this.repository.UpdateVerificationCode(payload.user_id!, code, expiry);
+            console.log(expiry,code);
             // const response = await SendVerification(code, payload.phone);
             return successResponse({ message: "Verification code sent successfully!" });
         }

@@ -1,16 +1,17 @@
-create table if not exists "users"(
-    "user_id" bigserial primary key,
-    "phone" varchar not null,
-    "email" varchar unique not null,
-    "password" varchar not null,
-    "salt" varchar not null,
-    "user_type" varchar not null,
-    "first_name" varchar not null,
-    "last_name" varchar not null,
-    "profile_pic" text,
-    "verification_code" varchar,
-    "expiry" timestamp,
-    "verified" boolean not null default false,
-    "created_at" timestamp not null default now()
+CREATE TABLE IF NOT EXISTS "users" (
+    "user_id" BIGSERIAL PRIMARY KEY,
+    "phone" VARCHAR NOT NULL,
+    "email" VARCHAR UNIQUE NOT NULL,
+    "password" VARCHAR NOT NULL,
+    "salt" VARCHAR,
+    "user_type" VARCHAR,
+    "first_name" VARCHAR,
+    "last_name" VARCHAR,
+    "profile_pic" TEXT,
+    "verification_code" VARCHAR,
+    "expiry" TIMESTAMP,
+    "verified" BOOLEAN NOT NULL DEFAULT FALSE,
+    "created_at" TIMESTAMP NOT NULL DEFAULT now()
 );
-create index  on "users"("phone");
+
+CREATE INDEX IF NOT EXISTS users_phone_idx ON "users" ("phone");
