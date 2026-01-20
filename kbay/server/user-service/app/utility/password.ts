@@ -18,8 +18,8 @@ export const validatePassword = async (
   return await bcrypt.compare(password, hashedPassword);
 };
 
-export const GetToken = ({ email, password, phone, userType }: UserModel) => {
-  return jwt.sign({ email, password, phone, userType }, APP_SECRET, { expiresIn: "10d" });
+export const GetToken = ({ user_id, email, password, phone, userType }: UserModel) => {
+  return jwt.sign({ user_id, email, password, phone, userType }, APP_SECRET, { expiresIn: "10d" });
 }
 export const VerifyToken = async (token:string):Promise<UserModel |false>=>{
   try{

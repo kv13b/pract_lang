@@ -80,17 +80,29 @@ export class UserService {
         }
         const token = authHeader.replace("Bearer ", "").trim();
         const payload = await VerifyToken(token!);
-        console.log("Payload from token:", payload);
-        if (payload) {
-            const { code, expiry } = GenerateAccessCode();
-            await this.repository.UpdateVerificationCode(payload.user_id!, code, expiry);
-            console.log(expiry,code);
-            // const response = await SendVerification(code, payload.phone);
-            return successResponse({ message: "Verification code sent successfully!" });
+        if (!payload) {
+            return errorResponse(403, "authorization failed");
         }
-
+        const { code, expiry } = GenerateAccessCode();
+        await this.repository.UpdateVerificationCode(payload.user_id!, code, expiry);
+        console.log(expiry, code);
+        // const response = await SendVerification(code, payload.phone);
+        return successResponse({ message: "Verification code sent successfully!" });
     }
     async VerifyUser(event: APIGatewayProxyEventV2) {
+        const authHeader =
+            event.headers.authorization || event.headers.Authorization;
+        if (!authHeader) {
+            return {
+                statusCode: 401,
+                body: JSON.stringify({ message: "Authorization header missing" }),
+            };
+        }
+        const token = authHeader.replace("Bearer ", "").trim();
+        const payload = await VerifyToken(token!);
+        if (!payload) {
+            return errorResponse(403, "authorization failed");
+        }
         return successResponse({ message: "User verified successfully!" });
     }
     //profile related methods
