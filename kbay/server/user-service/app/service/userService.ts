@@ -8,6 +8,8 @@ import { appValidationError } from "../utility/error";
 import { getSalt, GetToken, hashPassword, validatePassword, VerifyToken } from "../utility/password";
 import { LoginInput } from "../models/dto/LoginInput";
 import { GenerateAccessCode, SendVerification } from "../utility/notification";
+import { VerifyInput } from "../models/dto/UpdateInput";
+import { TimeDifference } from "../utility/datehelper";
 
 @autoInjectable()
 export class UserService {
@@ -102,6 +104,23 @@ export class UserService {
         const payload = await VerifyToken(token!);
         if (!payload) {
             return errorResponse(403, "authorization failed");
+        }
+        const input = plainToInstance(VerifyInput , payload);
+        const errors = await appValidationError(input);
+        if (errors) return errorResponse(404, errors);
+        const data = await this.repository.GetUserByEmail(payload.email);
+        if (data instanceof Error) {
+            return errorResponse(404, data.message);
+        }
+        const {verification_code,expiry}= data;
+        if(verification_code ==parseInt(input.code)){
+            const current_time=new Date();
+            const diff=TimeDifference(expiry!.toString(),current_time.toISOString(),"m");
+            if(diff>0){
+                console.log("User verified");
+            }else{
+                return errorResponse(403, "Verification code expired");
+            }
         }
         return successResponse({ message: "User verified successfully!" });
     }

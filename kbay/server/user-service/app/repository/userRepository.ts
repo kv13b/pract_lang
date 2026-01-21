@@ -16,7 +16,7 @@ export class UserRepository extends DBOperations {
         }
     }
     async GetUserByEmail(email: string) {
-        const query = `SELECT user_id, email, password, phone, salt FROM "users" WHERE email = $1`;
+        const query = `SELECT user_id, email, password, phone, verification_code, expiry, salt FROM "users" WHERE email = $1`;
         const values = [email];
         const res = await this.executeQurery(query, values);
         if (res.rows.length < 1) {
