@@ -17,6 +17,9 @@ export class UserService {
     constructor(repository?: UserRepository) {
         this.repository = repository || new (require('../repository/userRepository').UserRepository)();
     }
+    async ResonseWithError(event: APIGatewayProxyEventV2) {
+        return errorResponse(404, "request not found");
+    }
     async CreateUser(event: APIGatewayProxyEventV2) {
         try {
             console.log("CreateUser event body:", event.body);
@@ -105,14 +108,24 @@ export class UserService {
         if (!payload) {
             return errorResponse(403, "authorization failed");
         }
-        const input = plainToInstance(VerifyInput , payload);
+        if (!event.body) {
+            return errorResponse(400, "Request body is required");
+        }
+        const body =
+            typeof event.body === "string"
+                ? JSON.parse(event.body)
+                : event.body;
+        const input = plainToInstance(VerifyInput , body);
+        console.log(input,"this is the input");
         const errors = await appValidationError(input);
         if (errors) return errorResponse(404, errors);
         const data = await this.repository.GetUserByEmail(payload.email);
+        console.log(data, "this is the data of verify user");
         if (data instanceof Error) {
             return errorResponse(404, data.message);
         }
         const {verification_code,expiry}= data;
+        console.log(verification_code, input.code, expiry,"this is the data");
         if(verification_code ==parseInt(input.code)){
             const current_time=new Date();
             const diff=TimeDifference(expiry!.toString(),current_time.toISOString(),"m");

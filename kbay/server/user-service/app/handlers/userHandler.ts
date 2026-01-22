@@ -19,17 +19,17 @@ export const login = middy((event: APIGatewayProxyEventV2) => {
     return service.userLogin(event);
 }).use(jsonBodyParser());
 
-export const verify = async (event: APIGatewayProxyEventV2) => {
+export const verify = middy((event: APIGatewayProxyEventV2) => {
     const httpMethod = event.requestContext.http.method;
     if (httpMethod === "POST") {
         return service.VerifyUser(event);
     } else if (httpMethod === "GET") {
         return service.GetVerification(event);
     } else {
-        return errorResponse(404, "Unsupported HTTP method for profile");
+        return service.ResonseWithError(event);
     }
 
-};
+}).use(jsonBodyParser());
 
 export const profile = async (event: APIGatewayProxyEventV2) => {
     const httpMethod = event.requestContext.http.method;
