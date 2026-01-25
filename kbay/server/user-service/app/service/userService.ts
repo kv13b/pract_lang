@@ -130,6 +130,7 @@ export class UserService {
             const current_time=new Date();
             const diff=TimeDifference(expiry!.toString(),current_time.toISOString(),"m");
             if(diff>0){
+                await this.repository.UpdateVerifiedUser(data.user_id!);
                 console.log("User verified");
             }else{
                 return errorResponse(403, "Verification code expired");

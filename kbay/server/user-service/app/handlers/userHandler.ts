@@ -31,7 +31,7 @@ export const verify = middy((event: APIGatewayProxyEventV2) => {
 
 }).use(jsonBodyParser());
 
-export const profile = async (event: APIGatewayProxyEventV2) => {
+export const profile = middy((event: APIGatewayProxyEventV2) => {
     const httpMethod = event.requestContext.http.method;
     if (httpMethod === "POST") {
         return service.CreateProfile(event);
@@ -42,8 +42,8 @@ export const profile = async (event: APIGatewayProxyEventV2) => {
     } else {
         return errorResponse(404, "Unsupported HTTP method for profile");
     }
-};
-export const cart = async (event: APIGatewayProxyEventV2) => {
+}).use(jsonBodyParser());
+export const cart = middy((event: APIGatewayProxyEventV2) => {
     const httpMethod = event.requestContext.http.method;
     if (httpMethod === "POST") {
         return service.CreateCart(event);
@@ -54,8 +54,8 @@ export const cart = async (event: APIGatewayProxyEventV2) => {
     } else {
         return errorResponse(404, "Unsupported HTTP method for cart");
     }
-};
-export const payment = async (event: APIGatewayProxyEventV2) => {
+}).use(jsonBodyParser());
+export const payment = middy((event: APIGatewayProxyEventV2) => {
     const httpMethod = event.requestContext.http.method;
     if (httpMethod === "POST") {
         return service.CreatePayment(event);
@@ -66,4 +66,4 @@ export const payment = async (event: APIGatewayProxyEventV2) => {
     } else {
         return errorResponse(404, "Unsupported HTTP method for payment");
     }
-};
+}).use(jsonBodyParser());
