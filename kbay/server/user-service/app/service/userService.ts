@@ -10,6 +10,7 @@ import { LoginInput } from "../models/dto/LoginInput";
 import { GenerateAccessCode, SendVerification } from "../utility/notification";
 import { VerifyInput } from "../models/dto/UpdateInput";
 import { TimeDifference } from "../utility/datehelper";
+import { ProfileInput } from "../models/dto/AddressInput";
 
 @autoInjectable()
 export class UserService {
@@ -115,8 +116,8 @@ export class UserService {
             typeof event.body === "string"
                 ? JSON.parse(event.body)
                 : event.body;
-        const input = plainToInstance(VerifyInput , body);
-        console.log(input,"this is the input");
+        const input = plainToInstance(VerifyInput, body);
+        console.log(input, "this is the input");
         const errors = await appValidationError(input);
         if (errors) return errorResponse(404, errors);
         const data = await this.repository.GetUserByEmail(payload.email);
@@ -124,15 +125,15 @@ export class UserService {
         if (data instanceof Error) {
             return errorResponse(404, data.message);
         }
-        const {verification_code,expiry}= data;
-        console.log(verification_code, input.code, expiry,"this is the data");
-        if(verification_code ==parseInt(input.code)){
-            const current_time=new Date();
-            const diff=TimeDifference(expiry!.toString(),current_time.toISOString(),"m");
-            if(diff>0){
+        const { verification_code, expiry } = data;
+        console.log(verification_code, input.code, expiry, "this is the data");
+        if (verification_code == parseInt(input.code)) {
+            const current_time = new Date();
+            const diff = TimeDifference(expiry!.toString(), current_time.toISOString(), "m");
+            if (diff > 0) {
                 await this.repository.UpdateVerifiedUser(data.user_id!);
                 console.log("User verified");
-            }else{
+            } else {
                 return errorResponse(403, "Verification code expired");
             }
         }
@@ -140,6 +141,16 @@ export class UserService {
     }
     //profile related methods
     async CreateProfile(event: APIGatewayProxyEventV2) {
+        if (!event.body) {
+            return errorResponse(400, "Request body is required");
+        }
+        const payload =
+            typeof event.body === "string"
+                ? JSON.parse(event.body)
+                : event.body;
+        const input = plainToInstance(ProfileInput, payload);
+        const errors = await appValidationError(input);
+        if (errors) return errorResponse(404, errors)
         return successResponse({ message: "User profile created successfully!" });
     }
     async GetProfile(event: APIGatewayProxyEventV2) {
