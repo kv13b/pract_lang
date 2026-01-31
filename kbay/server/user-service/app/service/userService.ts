@@ -84,11 +84,13 @@ export class UserService {
                 body: JSON.stringify({ message: "Authorization header missing" }),
             };
         }
+        console.log(authHeader, "this is the auth header");
         const token = authHeader.replace("Bearer ", "").trim();
         const payload = await VerifyToken(token!);
         if (!payload) {
             return errorResponse(403, "authorization failed");
         }
+        console.log("Payload from token:", payload);
         const { code, expiry } = GenerateAccessCode();
         await this.repository.UpdateVerificationCode(payload.user_id!, code, expiry);
         console.log(expiry, code);
@@ -151,6 +153,8 @@ export class UserService {
         const input = plainToInstance(ProfileInput, payload);
         const errors = await appValidationError(input);
         if (errors) return errorResponse(404, errors)
+        const result = await this.repository.CreateProfile(payload.user_id!, input);
+        console.log(result, "this is the result of create profile");
         return successResponse({ message: "User profile created successfully!" });
     }
     async GetProfile(event: APIGatewayProxyEventV2) {

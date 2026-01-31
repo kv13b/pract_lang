@@ -1,3 +1,5 @@
+import type { AddressModel } from "./AddressMode";
+
 export interface UserModel {
     user_id?: number;
     email: string;
@@ -10,4 +12,5 @@ export interface UserModel {
     expiry?: Date;
     salt: string;
     userType: "BUYER" | "SELLER";
+    addresses?: AddressModel[];
 }

@@ -9,6 +9,24 @@ import { container } from "tsyringe";
 container.register("UserRepository", { useClass: UserRepository });
 const service = container.resolve(UserService);
 
+const skipJsonParserOnGet = () => ({
+    before: async (handler: any) => {
+        const method = handler.event?.requestContext?.http?.method;
+        if (method === "GET") {
+            const headers = handler.event?.headers || {};
+            // Remove any Content-Type header so the JSON parser won't reject the request
+            for (const key of Object.keys(headers)) {
+                if (key.toLowerCase() === "content-type") {
+                    delete headers[key];
+                }
+            }
+            handler.event.headers = headers;
+            // Helpful debug log
+            console.log("Skipped JSON parser for GET; headers now:", handler.event.headers);
+        }
+    }
+});
+
 export const signup = middy((event: APIGatewayProxyEventV2) => {
     console.log("Signup event:", event);
     return service.CreateUser(event);
@@ -29,7 +47,14 @@ export const verify = middy((event: APIGatewayProxyEventV2) => {
         return service.ResonseWithError(event);
     }
 
-}).use(jsonBodyParser());
+}).use({
+    before: async (request) => {
+        const method = request.event.requestContext.http.method;
+        if (method !== "GET") {
+            await jsonBodyParser().before!(request);
+        }
+    }
+});
 
 export const profile = middy((event: APIGatewayProxyEventV2) => {
     const httpMethod = event.requestContext.http.method;
