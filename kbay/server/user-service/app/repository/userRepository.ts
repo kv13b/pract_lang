@@ -2,6 +2,7 @@ import type { UserModel } from "../models/UserModel";
 import { injectable } from "tsyringe";
 import { DBOperations } from "./dbOperations";
 import type { ProfileInput } from "../models/dto/AddressInput";
+import type { AddressModel } from "../models/AddressMode";
 @injectable()
 export class UserRepository extends DBOperations {
     constructor() {
@@ -59,15 +60,31 @@ export class UserRepository extends DBOperations {
         lastName,
         userType,
         address: { addressLine1, addressLine2, city, postalCode, country } }: ProfileInput) {
-        const updateUser = await this.updateUserProfile(user_id, firstName, lastName, userType);
-        const query = `INSERT INTO "addresses" (address_line_1, address_line_2, city, postal_code, country, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
-        const values = [addressLine1, addressLine2, city, postalCode, country, user_id];
+        console.log("Creating profile for user_id:", user_id);
+        await this.updateUserProfile(user_id, firstName, lastName, userType);
+        // Use table and column names from migration: table is "address" with columns address_line1, address_line2, city, post_code, country
+        const query = `INSERT INTO "address" (address_line1, address_line2, city, post_code, country, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
+        const postCodeValue = postalCode ? parseInt(String(postalCode), 10) : null;
+        const values = [addressLine1, addressLine2, city, postCodeValue, country, user_id];
         const res = await this.executeQurery(query, values);
         if (res.rows.length > 0) {
-            res.rows[0] as UserModel;
-            return { updateUser, res }
+            return res.rows[0] as AddressModel;
         }
-        return true;
-
+        throw new Error("Address insertion failed");
+    }
+    async GetProfile(user_id: number) {
+        const UserQuery = `SELECT first_name, last_name, email, phone,user_type,verified FROM "users" WHERE user_id = $1`;
+        const values = [user_id];
+        const UserQueryres = await this.executeQurery(UserQuery, values);
+        if (UserQueryres.rows.length < 1) {
+           throw new Error("Profile not found");
+        }
+        const UserProfile=UserQueryres.rows[0] as UserModel
+        const AddressQuery = `SELECT id, address_line1, address_line2, city, post_code, country FROM "address" WHERE user_id = $1`;
+        const addressRes = await this.executeQurery(AddressQuery, values);
+        if(addressRes.rows.length>0){
+            UserProfile.addresses=addressRes.rows as AddressModel[];
+        }
+        return UserProfile
     }
 }

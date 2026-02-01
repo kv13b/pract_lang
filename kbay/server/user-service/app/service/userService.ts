@@ -143,6 +143,18 @@ export class UserService {
     }
     //profile related methods
     async CreateProfile(event: APIGatewayProxyEventV2) {
+        // Require authorization and verify token to obtain user_id
+        const authHeader = event.headers.authorization || event.headers.Authorization;
+        if (!authHeader) {
+            return errorResponse(401, "Authorization header missing");
+        }
+        const token = authHeader.replace("Bearer ", "").trim();
+        const tokenPayload = await VerifyToken(token!);
+        if (!tokenPayload) {
+            return errorResponse(403, "authorization failed");
+        }
+        const userId = tokenPayload.user_id;
+
         if (!event.body) {
             return errorResponse(400, "Request body is required");
         }
@@ -150,10 +162,11 @@ export class UserService {
             typeof event.body === "string"
                 ? JSON.parse(event.body)
                 : event.body;
-        const input = plainToInstance(ProfileInput, payload);
+        const input = plainToInstance(ProfileInput, payload, { excludeExtraneousValues: true });
         const errors = await appValidationError(input);
-        if (errors) return errorResponse(404, errors)
-        const result = await this.repository.CreateProfile(payload.user_id!, input);
+        if (errors) return errorResponse(404, errors);
+        console.log("Payload for creating profile:", payload, "userId:", userId);
+        const result = await this.repository.CreateProfile(userId!, input);
         console.log(result, "this is the result of create profile");
         return successResponse({ message: "User profile created successfully!" });
     }
