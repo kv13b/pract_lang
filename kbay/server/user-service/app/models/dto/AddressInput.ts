@@ -2,6 +2,7 @@ import {Length, ValidateNested, IsDefined, IsOptional, MaxLength} from 'class-va
 import { Type, Expose, Transform } from 'class-transformer';
 
 export class AddressInput {
+    id:number;
     @Expose()
     @Length(3, 32)
     addressLine1: string;

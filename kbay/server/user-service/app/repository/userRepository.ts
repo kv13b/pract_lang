@@ -87,4 +87,15 @@ export class UserRepository extends DBOperations {
         }
         return UserProfile
     }
+    async UpdateProfile(user_id: number, { firstName, lastName, userType, address: { addressLine1, addressLine2, city, postalCode, country } }: ProfileInput) {
+        await this.updateUserProfile(user_id, firstName, lastName, userType);
+        // const query = `UPDATE "address" SET address_line1 = $1, address_line2 = $2, city = $3, post_code = $4, country = $5 WHERE user_id = $6 RETURNING *`;
+        // const postCodeValue = postalCode ? parseInt(String(postalCode), 10) : null;
+        // const values = [addressLine1, addressLine2, city, postCodeValue, country, user_id];
+        // const res = await this.executeQurery(query, values);
+        // if (res.rows.length > 0) {
+        //     return res.rows[0] as AddressModel;
+        // }
+        throw new Error("Address update failed");
+    }
 }
