@@ -143,73 +143,84 @@ export class UserService {
     }
     //profile related methods
     async CreateProfile(event: APIGatewayProxyEventV2) {
-        // Require authorization and verify token to obtain user_id
-        const authHeader = event.headers.authorization || event.headers.Authorization;
-        if (!authHeader) {
-            return errorResponse(401, "Authorization header missing");
-        }
-        const token = authHeader.replace("Bearer ", "").trim();
-        const tokenPayload = await VerifyToken(token!);
-        if (!tokenPayload) {
-            return errorResponse(403, "authorization failed");
-        }
-        const userId = tokenPayload.user_id;
+        try {
+            const authHeader = event.headers.authorization || event.headers.Authorization;
+            if (!authHeader) {
+                return errorResponse(401, "Authorization header missing");
+            }
+            const token = authHeader.replace("Bearer ", "").trim();
+            const tokenPayload = await VerifyToken(token!);
+            if (!tokenPayload) {
+                return errorResponse(403, "authorization failed");
+            }
+            const userId = tokenPayload.user_id;
 
-        if (!event.body) {
-            return errorResponse(400, "Request body is required");
+            if (!event.body) {
+                return errorResponse(400, "Request body is required");
+            }
+            const payload =
+                typeof event.body === "string"
+                    ? JSON.parse(event.body)
+                    : event.body;
+            const input = plainToInstance(ProfileInput, payload, { excludeExtraneousValues: true });
+            const errors = await appValidationError(input);
+            if (errors) return errorResponse(404, errors);
+            console.log("Payload for creating profile:", payload, "userId:", userId);
+            const result = await this.repository.CreateProfile(userId!, input);
+            console.log(result, "this is the result of create profile");
+            return successResponse({ message: "User profile created successfully!" });
+        } catch (err) {
+            return errorResponse(500, err);
         }
-        const payload =
-            typeof event.body === "string"
-                ? JSON.parse(event.body)
-                : event.body;
-        const input = plainToInstance(ProfileInput, payload, { excludeExtraneousValues: true });
-        const errors = await appValidationError(input);
-        if (errors) return errorResponse(404, errors);
-        console.log("Payload for creating profile:", payload, "userId:", userId);
-        const result = await this.repository.CreateProfile(userId!, input);
-        console.log(result, "this is the result of create profile");
-        return successResponse({ message: "User profile created successfully!" });
     }
     async GetProfile(event: APIGatewayProxyEventV2) {
-        const authHeader = event.headers.authorization || event.headers.Authorization;
-        if (!authHeader) {
-            return errorResponse(401, "Authorization header missing");
+        try {
+            const authHeader = event.headers.authorization || event.headers.Authorization;
+            if (!authHeader) {
+                return errorResponse(401, "Authorization header missing");
+            }
+            const token = authHeader.replace("Bearer ", "").trim();
+            const tokenPayload = await VerifyToken(token!);
+            if (!tokenPayload) {
+                return errorResponse(403, "authorization failed");
+            }
+            const userId = tokenPayload.user_id;
+            const result = await this.repository.GetProfile(userId!);
+            return successResponse({ message: "User profile retrieved successfully!", data: result });
+        } catch (err) {
+            return errorResponse(500, err);
         }
-        const token = authHeader.replace("Bearer ", "").trim();
-        const tokenPayload = await VerifyToken(token!);
-        if (!tokenPayload) {
-            return errorResponse(403, "authorization failed");
-        }
-        const userId = tokenPayload.user_id;
-        const result = await this.repository.GetProfile(userId!);
-        return successResponse({ message: "User profile retrieved successfully!", data: result });
     }
     async EditProfile(event: APIGatewayProxyEventV2) {
-        const authHeader = event.headers.authorization || event.headers.Authorization;
-        if (!authHeader) {
-            return errorResponse(401, "Authorization header missing");
-        }
-        const token = authHeader.replace("Bearer ", "").trim();
-        const tokenPayload = await VerifyToken(token!);
-        if (!tokenPayload) {
-            return errorResponse(403, "authorization failed");
-        }
-        const userId = tokenPayload.user_id;
+        try {
+            const authHeader = event.headers.authorization || event.headers.Authorization;
+            if (!authHeader) {
+                return errorResponse(401, "Authorization header missing");
+            }
+            const token = authHeader.replace("Bearer ", "").trim();
+            const tokenPayload = await VerifyToken(token!);
+            if (!tokenPayload) {
+                return errorResponse(403, "authorization failed");
+            }
+            const userId = tokenPayload.user_id;
 
-        if (!event.body) {
-            return errorResponse(400, "Request body is required");
+            if (!event.body) {
+                return errorResponse(400, "Request body is required");
+            }
+            const payload =
+                typeof event.body === "string"
+                    ? JSON.parse(event.body)
+                    : event.body;
+            const input = plainToInstance(ProfileInput, payload, { excludeExtraneousValues: true });
+            const errors = await appValidationError(input);
+            if (errors) return errorResponse(404, errors);
+            console.log("Payload for updating profile:", payload, "userId:", input);
+            const result = await this.repository.UpdateProfile(userId!, input);
+            console.log(result, "this is the result of update profile");
+            return successResponse({ message: "User profile updated successfully!" });
+        } catch (err) {
+            return errorResponse(500, err);
         }
-        const payload =
-            typeof event.body === "string"
-                ? JSON.parse(event.body)
-                : event.body;
-        const input = plainToInstance(ProfileInput, payload, { excludeExtraneousValues: true });
-        const errors = await appValidationError(input);
-        if (errors) return errorResponse(404, errors);
-        console.log("Payload for creating profile:", payload, "userId:", userId);
-        const result = await this.repository.CreateProfile(userId!, input);
-        console.log(result, "this is the result of create profile");
-        return successResponse({ message: "User profile created successfully!" });
     }
     //cart related methods
     async CreateCart(event: APIGatewayProxyEventV2) {
