@@ -1,8 +1,10 @@
-import {Length, ValidateNested, IsDefined, IsOptional, MaxLength} from 'class-validator';
+import { Length, ValidateNested, IsDefined, IsOptional, MaxLength } from 'class-validator';
 import { Type, Expose, Transform } from 'class-transformer';
 
 export class AddressInput {
-    id:number;
+    @Expose()
+    @IsOptional()
+    id?: number;
     @Expose()
     @Length(3, 32)
     addressLine1: string;
@@ -24,15 +26,15 @@ export class AddressInput {
     @Length(2, 32)
     country: string;
 }
-export class ProfileInput{
+export class ProfileInput {
     @Expose()
-    @Length(2,32)
+    @Length(2, 32)
     firstName: string;
     @Expose()
-    @Length(2,32)
+    @Length(2, 32)
     lastName: string;
     @Expose()
-    @Length(5,6)
+    @Length(5, 6)
     userType: string;
     @Expose()
     @IsDefined()
