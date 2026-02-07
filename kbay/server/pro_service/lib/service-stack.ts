@@ -3,10 +3,13 @@ import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-node
 import { Construct } from "constructs";
 import { join } from "path";
 
+interface ServiceProps{
+  bucket?:any;
+}
 export class ServiceStack extends Construct {
   public readonly productService: NodejsFunction;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string,props:ServiceProps) {
     super(scope, id);
 
     const nodeJsFunctionProps: NodejsFunctionProps = {
