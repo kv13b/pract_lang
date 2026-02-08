@@ -23,7 +23,7 @@ export class ServiceStack extends Construct {
     };
 
     this.productService = new NodejsFunction(this, "productLambda", {
-      entry: join(__dirname, "../src/product/index.ts"),
+      entry: join(__dirname, "../src/index.ts"),
       ...nodeJsFunctionProps,
     });
   }
