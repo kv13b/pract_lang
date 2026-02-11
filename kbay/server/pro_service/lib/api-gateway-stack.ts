@@ -1,57 +1,83 @@
 import { aws_apigateway } from "aws-cdk-lib";
-import { LambdaRestApi } from "aws-cdk-lib/aws-apigateway";
+import { LambdaIntegration, IResource } from "aws-cdk-lib/aws-apigateway";
 import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 
 interface APiGatewayStackProps {
     productService: IFunction;
-    categoryService?: IFunction;
-    dealsService?: IFunction;
+    categoryService: IFunction;
+    dealsService: IFunction;
 }
-interface ResourceType{
-    name:string;
-    method:string;
-    child?:ResourceType[];
+
+interface ResourceType {
+    name: string;
+    methods: string[];
+    child?: ResourceType[];
 }
+
 export class APiGatewayStack extends Construct {
     constructor(scope: Construct, id: string, props: APiGatewayStackProps) {
         super(scope, id);
         this.addResources("product", props);
     }
-    addResources(serviceName: string, { categoryService, productService, dealsService }: APiGatewayStackProps) {
-        const apgw=new aws_apigateway.RestApi(this, `${serviceName}-ApiGateway`);
-        // const agpw = new LambdaRestApi(this, `${serviceName}-ApiGateway`, {
-        //     restApiName: `${serviceName}-Api`,
-        //     handler: handler,
-        //     proxy: false,
-        // });
 
-        // const ProductResource = agpw.root.addResource("product");
-        // ProductResource.addMethod("GET");
-        // ProductResource.addMethod("POST");
+    addResources(
+        serviceName: string,
+        { categoryService, productService, dealsService }: APiGatewayStackProps
+    ) {
+        const apgw = new aws_apigateway.RestApi(this, `${serviceName}-ApiGateway`);
+        
+        // Pass apgw.root (which is IResource) to createEndPoints
+        this.createEndPoints(productService, apgw.root, {
+            name: "products",
+            methods: ["GET", "POST"],
+            child: [
+                {
+                    name: "{id}",
+                    methods: ["GET", "PUT", "DELETE"]
+                }
+            ]
+        });
+        this.createEndPoints(categoryService, apgw.root, {
+            name: "categories",
+            methods: ["GET", "POST"],
+            child: [
+                {
+                    name: "{id}",
+                    methods: ["GET", "PUT", "DELETE"]
+                }
+            ]
+        });
+        this.createEndPoints(dealsService, apgw.root, {
+            name: "deals",
+            methods: ["GET", "POST"],
+            child: [
+                {
+                    name: "{id}",
+                    methods: ["GET", "PUT", "DELETE"]
+                }
+            ]
+        });
+    }
 
-        // const ProductIdResource = ProductResource.addResource("{id}");
-        // ProductIdResource.addMethod("GET");
-        // ProductIdResource.addMethod("PUT");
-        // ProductIdResource.addMethod("DELETE");
-
-        // const CategoryResource = agpw.root.addResource("category");
-        // CategoryResource.addMethod("GET");
-        // CategoryResource.addMethod("POST");
-
-        // const CatResource = CategoryResource.addResource("{id}");
-        // CatResource.addMethod("GET");
-        // CatResource.addMethod("PUT");
-        // CatResource.addMethod("DELETE");
-
-        // const dealsResource = agpw.root.addResource("deals");
-        // dealsResource.addMethod("GET");
-        // dealsResource.addMethod("POST");
-
-        // const dealsIdResource = dealsResource.addResource("{id}");
-        // dealsIdResource.addMethod("GET");
-        // dealsIdResource.addMethod("PUT");
-        // dealsIdResource.addMethod("DELETE");
-
+    createEndPoints(
+        handler: IFunction,
+        resource: IResource,  // Changed from RestApi to IResource
+        { name, methods, child }: ResourceType
+    ) {
+        const lambdaFunction = new LambdaIntegration(handler);
+        const rootResource = resource.addResource(name);
+        
+        // Add methods to the current resource
+        methods.forEach((method) => {
+            rootResource.addMethod(method, lambdaFunction);
+        });
+        
+        // Handle child resources recursively
+        if (child && child.length > 0) {
+            child.forEach((childResource) => {
+                this.createEndPoints(handler, rootResource, childResource);
+            });
+        }
     }
 }
