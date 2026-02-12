@@ -4,7 +4,8 @@ const formatResponse = (statusCode: number, message: string, data?: any) => {
             statusCode,
             headers: {
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Credentials": true
+                "Access-Control-Allow-Credentials": true,
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 message,
@@ -16,7 +17,8 @@ const formatResponse = (statusCode: number, message: string, data?: any) => {
             statusCode,
             headers: {
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Credentials": true
+                "Access-Control-Allow-Credentials": true,
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 message,
