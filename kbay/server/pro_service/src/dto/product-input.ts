@@ -1,16 +1,26 @@
-import { IsNumber, Length } from "class-validator";
+import { IsNumber, IsOptional, IsString, Length } from "class-validator";
 export class ProductInput {
-    id: string;
+    @IsOptional()
+    @IsString()
+    id?: string;
+
     @Length(3, 128)
     name: string;
-    @Length(3, 256)
-    description: string
 
-    category_Id: string;
-    image_url: string;
+    @Length(3, 256)
+    description: string;
+
+    @IsString()
+    category_id: string;
+
+    @IsOptional()
+    @IsString()
+    image_url?: string;
+
     @IsNumber()
     price: number;
-    @IsNumber()
-    avliability: boolean;
 
+    @IsOptional()
+    @IsNumber()
+    availability?: number;
 }

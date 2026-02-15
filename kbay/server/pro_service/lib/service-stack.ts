@@ -17,10 +17,21 @@ export class ServiceStack extends Construct {
 
     const nodeJsFunctionProps: NodejsFunctionProps = {
       bundling: {
-        externalModules: ["aws-sdk"],
+        externalModules: [
+          "aws-sdk",
+          "@aws-sdk/core",
+          "@aws-sdk/credential-providers",
+          "@aws-sdk/credential-provider-env",
+          "@aws-sdk/credential-provider-http",
+          "@aws-sdk/credential-provider-ini",
+          "@aws-sdk/credential-provider-sso",
+          "@aws-sdk/credential-provider-process",
+          "@aws-sdk/credential-provider-web-identity",
+        ],
       },
       environment: {
         BUCKET_NAME: "MY-BUCKET-NAME",
+        DB_URL: process.env.DB_URL!,
       },
       runtime: Runtime.NODEJS_22_X,
       timeout:Duration.seconds(10),
