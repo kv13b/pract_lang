@@ -31,10 +31,10 @@ export class ServiceStack extends Construct {
       },
       environment: {
         BUCKET_NAME: "MY-BUCKET-NAME",
-        DB_URL: process.env.DB_URL!,
+        DB_URL: process.env.DB_URL || "mongodb://localhost:27017/product-db",
       },
       runtime: Runtime.NODEJS_22_X,
-      timeout:Duration.seconds(10),
+      timeout: Duration.seconds(30),
     };
 
     this.productService = new NodejsFunction(this, "productLambda", {
