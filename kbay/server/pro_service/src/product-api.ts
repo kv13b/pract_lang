@@ -18,8 +18,11 @@ export const handler = async (event: APIGatewayEvent,
             }
             break;
         case "get":
-            isRoot ? service.getProducts(event) : service.getSingleProduct(event);
-            break;
+            if (isRoot) {
+                return service.getProducts(event);
+            } else {
+                return service.getSingleProduct(event);
+            }
 
         case "put":
             if (!isRoot) {

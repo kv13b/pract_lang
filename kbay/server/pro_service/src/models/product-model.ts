@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 type ProductModel = {
     name: string;
     description: string;
-    category_Id: string;
+    category_id: string;
     image_url: string;
     price: number;
-    avliability: boolean;
+    availability: boolean;
 }
 export type ProductDoc = mongoose.Document & ProductModel & {
     __v?: number;
@@ -15,10 +15,10 @@ export type ProductDoc = mongoose.Document & ProductModel & {
 const productSchema = new mongoose.Schema({
     name: String,
     description: String,
-    category_Id: String,
+    category_id: String,
     image_url: String,
     price: Number,
-    avliability: Boolean,
+    availability: Boolean,
 },
     {
         toJSON: {

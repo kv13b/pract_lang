@@ -20,10 +20,10 @@ export class ProductRepository {
         return products.findById(id);
     };
 
-    async updateProduct({ name, description, category_id, image_url, price, availability }:
+    async updateProduct({id, name, description, category_id, image_url, price, availability }:
         ProductInput) {
 
-        let existingProduct = await products.findById(category_id);
+        let existingProduct = await products.findById(id);
         if (!existingProduct) return null;
         existingProduct.name = name;
         existingProduct.description = description;
