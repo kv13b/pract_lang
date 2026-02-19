@@ -5,12 +5,13 @@ import { Construct } from "constructs";
 import { join } from "path";
 
 interface ServiceProps{
-  bucket?:any;
+  bucket:string;
 }
 export class ServiceStack extends Construct {
   public readonly productService: NodejsFunction;
   public readonly categoryService: NodejsFunction;
   public readonly dealsService: NodejsFunction;
+  public readonly imageService: NodejsFunction;
 
   constructor(scope: Construct, id: string,props:ServiceProps) {
     super(scope, id);
@@ -30,7 +31,7 @@ export class ServiceStack extends Construct {
         ],
       },
       environment: {
-        BUCKET_NAME: "MY-BUCKET-NAME",
+        BUCKET_NAME: props.bucket,
         DB_URL: process.env.DB_URL || "mongodb://localhost:27017/product-db",
       },
       runtime: Runtime.NODEJS_22_X,
@@ -49,6 +50,11 @@ export class ServiceStack extends Construct {
 
     this.dealsService = new NodejsFunction(this, "dealsLambda", {
       entry: join(__dirname, "../src/deals-api.ts"),
+      ...nodeJsFunctionProps,
+    });
+    
+    this.imageService = new NodejsFunction(this, "imageLambda", {
+      entry: join(__dirname, "../src/image-api.ts"),
       ...nodeJsFunctionProps,
     });
   }
