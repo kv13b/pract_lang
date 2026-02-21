@@ -60,8 +60,8 @@ export class APiGatewayStack extends Construct {
             ]
         });
         this.createEndPoints(imageService, apgw.root, {
-            name: "images",
-            methods: ["POST"],
+            name: "uploader",
+            methods: ["GET"],
         });
     }
 

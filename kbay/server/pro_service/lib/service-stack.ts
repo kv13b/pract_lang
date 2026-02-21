@@ -31,7 +31,7 @@ export class ServiceStack extends Construct {
         ],
       },
       environment: {
-        BUCKET_NAME: props.bucket,
+        S3_BUCKET_NAME: props.bucket,
         DB_URL: process.env.DB_URL || "mongodb://localhost:27017/product-db",
       },
       runtime: Runtime.NODEJS_22_X,
