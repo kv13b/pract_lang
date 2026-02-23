@@ -2,8 +2,8 @@ import { CategoryRepository } from "../repository/category-repository";
 import { errorResponse, successResponse } from "../utility/response";
 import { APIGatewayEvent } from "aws-lambda";
 import { plainToInstance } from "class-transformer";
-import { ProductInput } from "../dto/product-input";
 import { appValidationError } from "../utility/error";
+import { CategoryInput } from "../dto/category-input";
 export class CategoryService {
     _repository: CategoryRepository;
     constructor(repository: CategoryRepository) {
@@ -13,11 +13,11 @@ export class CategoryService {
         return errorResponse(404, { message, error });
     }
     async createCategory(event: APIGatewayEvent) {
-            // const input = plainToInstance(ProductInput, JSON.parse(event.body!));
-            // const error = await appValidationError(input);
-            // if (error) return errorResponse(404, { message: "validation error", error });
-            // const data = await this._repository.createProducts(input);
-            // return successResponse(data);
+            const input = plainToInstance(CategoryInput, JSON.parse(event.body!));
+            const error = await appValidationError(input);
+            if (error) return errorResponse(404, { message: "validation error", error });
+            const data = await this._repository.createCategory(input);
+            return successResponse(data);
         }
     
         async getSingleCategory(event: APIGatewayEvent) {
