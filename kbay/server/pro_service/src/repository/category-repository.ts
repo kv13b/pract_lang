@@ -1,5 +1,5 @@
 import path from "path";
-import { CategoryInput } from "../dto/category-input";
+import { AddItemInput, CategoryInput } from "../dto/category-input";
 import { categories, CategoryDoc } from "../models/category-model";
 import { products } from "../models/product-model";
 
@@ -33,6 +33,16 @@ export class CategoryRepository {
             }
         }).skip(offset).limit(perpage ? perpage : 100);
     }
+    async getTopCategories() {
+        return categories.find({ parentId: { $ne: null } },
+            {
+                products: { $slice: 10 }
+            }
+        ).populate({
+            path: "products",
+            model: "Products"
+        }).sort({ displayOrder:"descending" }).limit(10);
+    }
     async getCategoryById(id: string, offset = 0, perpage?: number) {
         return categories.findById(id, {
             products: { $slice: [offset, perpage ? perpage : 100] }
@@ -49,5 +59,18 @@ export class CategoryRepository {
     }
     async deleteCategory(id: string) {
         return categories.deleteOne({ _id: id });
+    }
+    async addItem({ id, products }: AddItemInput) {
+        let category = (await categories.findById(id)) as CategoryDoc;
+        category.products = [...category.products, ...products];
+        return category.save();
+    }
+    async removeItem({ id, products }: AddItemInput) {
+        let category = (await categories.findById(id)) as CategoryDoc;
+        const excludeProducts = category.products.filter(
+            (item) => !products.includes(item.toString())
+        )
+        category.products = excludeProducts;
+        return category.save();
     }
 }

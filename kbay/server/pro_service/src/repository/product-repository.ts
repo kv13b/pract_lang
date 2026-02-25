@@ -1,11 +1,11 @@
 import { ProductInput } from "../dto/product-input";
-import { products } from "../models/product-model";
+import { ProductDoc, products } from "../models/product-model";
 
 export class ProductRepository {
     constructor() { }
 
     async createProducts({ name, description, category_id, image_url, price, availability }:
-        ProductInput) {
+        ProductInput): Promise<ProductDoc> {
         return products.create({
             name, description,
             category_id, image_url, price, availability
@@ -20,7 +20,7 @@ export class ProductRepository {
         return products.findById(id);
     };
 
-    async updateProduct({id, name, description, category_id, image_url, price, availability }:
+    async updateProduct({ id, name, description, category_id, image_url, price, availability }:
         ProductInput) {
 
         let existingProduct = await products.findById(id);
@@ -34,7 +34,9 @@ export class ProductRepository {
         return existingProduct.save();
     };
 
-    async deleteProduct(id: string) { 
-        return products.deleteOne({ _id: id });
+    async deleteProduct(id: string) {
+        const { category_id } = (await products.findById(id)) as ProductDoc;
+        const deleteResult = await products.deleteOne({ _id: id });
+        return { category_id, deleteResult };
     };
 }
