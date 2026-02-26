@@ -7,6 +7,7 @@ type CategoryMode = {
     subCategories: string[];
     products: string[];
     displayOrder: number;
+    imageUrl: string;
 }
 export type CategoryDoc = mongoose.Document & CategoryMode & {
     __v?: number;
@@ -28,7 +29,8 @@ const categorySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "products"
     }],
-    displayOrder: { type: Number, default: 1}
+    displayOrder: { type: Number, default: 1},
+    imageUrl: String,
 },
     {
         toJSON: {

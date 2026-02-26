@@ -14,29 +14,29 @@ export const handler = middy((event: APIGatewayEvent,
 
     const isRoot = event.pathParameters === null;
     switch (event.httpMethod.toLowerCase()) {
-        // case "post":
-        //     if (isRoot) {
-        //         return service.createCategory(event);
-        //     }
-        //     break;
-        // case "get":
-        //     if (isRoot) {
-        //         return service.getCategories(event);
-        //     } else {
-        //         return service.getSingleCategory(event);
-        //     }
-
-        // case "put":
-        //     if (!isRoot) {
-        //         return service.updateCategory(event);
-        //     }
-        //     break;
-        // case "delete":
-        //     if (!isRoot) {
-        //         return service.deleteCategory(event);
-        //     }
-        // default:
-        //     break;
+        case "post":
+            if (isRoot) {
+                return service.createCategory(event);
+            }
+            break;
+        case "get":
+            if (isRoot) {
+                return service.getCategories(event);
+            } else {
+                return service.getSingleCategory(event);
+            }
+        case "put":
+            if (!isRoot) {
+                return service.updateCategory(event);
+            }
+            break;
+        case "delete":
+            if (!isRoot) {
+                return service.deleteCategory(event);
+            }
+            break;
+        default:
+            break;
     }
     return service.ResponseWithError("Unsupported method", null);
-}).use(jsonBodyParser());
+}).use(jsonBodyParser({ disableContentTypeError: true }));

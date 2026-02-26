@@ -13,7 +13,7 @@ export class CategoryService {
         return errorResponse(404, { message, error });
     }
     async createCategory(event: APIGatewayEvent) {
-        const input = plainToInstance(CategoryInput, JSON.parse(event.body!));
+        const input = plainToInstance(CategoryInput,event.body!);
         const error = await appValidationError(input);
         if (error) return errorResponse(404, { message: "validation error", error });
         const data = await this._repository.createCategory(input);
@@ -25,13 +25,19 @@ export class CategoryService {
         return successResponse(data);
     }
     async getCategories(event: APIGatewayEvent) {
+        const type = event.queryStringParameters?.type;
+        if (type === "top") {
+            const data = await this._repository.getTopCategories();
+            return successResponse(data);
+        }
         const data = await this._repository.getAllCategories();
         return successResponse(data);
     }
     async updateCategory(event: APIGatewayEvent) {
         const categoryId = event.pathParameters!.id!;
         if (!categoryId) return errorResponse(404, { message: "category id is required" });
-        const input = plainToInstance(CategoryInput, JSON.parse(event.body!));
+        const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
+        const input = plainToInstance(CategoryInput, body);
         const error = await appValidationError(input);
         if (error) return errorResponse(404, { message: "validation error", error });
         input.id = categoryId;
@@ -39,8 +45,8 @@ export class CategoryService {
         return successResponse(data);
     }
     async deleteCategory(event: APIGatewayEvent) {
-        // const data = await this._repository.deleteCategory(event.pathParameters!.id!);
-        // return successResponse(data);
+        const data = await this._repository.deleteCategory(event.pathParameters!.id!);
+        return successResponse(data);
     }
 
 }

@@ -1,16 +1,15 @@
-import path from "path";
 import { AddItemInput, CategoryInput } from "../dto/category-input";
-import { categories, CategoryDoc } from "../models/category-model";
-import { products } from "../models/product-model";
+import { categories, CategoryDoc } from "../models";
 
 export class CategoryRepository {
     constructor() { }
 
-    async createCategory({ name, parentId }: CategoryInput) {
+    async createCategory({ name, parentId ,imageUrl}: CategoryInput) {
         const newCategory = await categories.create({
             name,
             parentId,
-            subCategory: [],
+            imageUrl,
+            subCategories: [],
             products: []
         });
         if (parentId) {
@@ -26,10 +25,10 @@ export class CategoryRepository {
     async getAllCategories(offset = 0, perpage?: number) {
         return await categories.find({ parentId: null }).populate({
             path: "subCategories",
-            model: "Categories",
+            model: "categories",
             populate: {
                 path: "subCategories",
-                model: "Categories"
+                model: "categories"
             }
         }).skip(offset).limit(perpage ? perpage : 100);
     }
@@ -40,7 +39,7 @@ export class CategoryRepository {
             }
         ).populate({
             path: "products",
-            model: "Products"
+            model: "products"
         }).sort({ displayOrder:"descending" }).limit(10);
     }
     async getCategoryById(id: string, offset = 0, perpage?: number) {
@@ -48,13 +47,14 @@ export class CategoryRepository {
             products: { $slice: [offset, perpage ? perpage : 100] }
         }).populate({
             path: "subCategories",
-            model: "Categories",
+            model: "categories",
         });
     }
-    async updateCategory({ id, name, displayOrder }: CategoryInput) {
+    async updateCategory({ id, name, displayOrder, imageUrl }: CategoryInput) {
         const category = await categories.findById(id) as CategoryDoc;
         category.name = name;
         category.displayOrder = displayOrder;
+        category.imageUrl = imageUrl;
         return category.save();
     }
     async deleteCategory(id: string) {
