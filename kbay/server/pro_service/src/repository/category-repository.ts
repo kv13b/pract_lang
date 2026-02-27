@@ -44,7 +44,11 @@ export class CategoryRepository {
     }
     async getCategoryById(id: string, offset = 0, perpage?: number) {
         return categories.findById(id, {
-            products: { $slice: [offset, perpage ? perpage : 100] }
+            products: { $slice: [offset, perpage || 100] },
+            subCategories: { $slice: [offset, perpage || 100] }
+        }).populate({
+            path: "products",
+            model: "products"
         }).populate({
             path: "subCategories",
             model: "categories",

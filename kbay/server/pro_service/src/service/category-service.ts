@@ -4,6 +4,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import { plainToInstance } from "class-transformer";
 import { appValidationError } from "../utility/error";
 import { CategoryInput } from "../dto/category-input";
+import { cp } from "fs";
 export class CategoryService {
     _repository: CategoryRepository;
     constructor(repository: CategoryRepository) {
@@ -21,7 +22,11 @@ export class CategoryService {
     }
 
     async getSingleCategory(event: APIGatewayEvent) {
-        const data = await this._repository.getCategoryById(event.pathParameters!.id!);
+        const categoryId = event.pathParameters!.id!;
+        if (!categoryId) return errorResponse(404, { message: "category id is required" });
+        const offset=Number(event.queryStringParameters?.offset)||0;
+        const perPage=Number(event.queryStringParameters?.perPage)||1;
+        const data = await this._repository.getCategoryById(categoryId, offset, perPage);
         return successResponse(data);
     }
     async getCategories(event: APIGatewayEvent) {

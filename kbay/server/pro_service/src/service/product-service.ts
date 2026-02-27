@@ -43,7 +43,9 @@ export class ProductService {
     async deleteProduct(event: APIGatewayEvent) {
         const productId = event.pathParameters!.id!;
         if (!productId) return errorResponse(404, { message: "product id is required" });
-        const { category_id, deleteResult } = await this._repository.deleteProduct(productId);
+        const result = await this._repository.deleteProduct(productId);
+        if (!result) return errorResponse(404, { message: "product not found" });
+        const { category_id, deleteResult } = result;
         await new CategoryRepository().removeItem({ id: category_id, products: [productId] });
         return successResponse(deleteResult);
     }
