@@ -11,6 +11,9 @@ export class ProductService {
     constructor(repository: ProductRepository) {
         this._repository = repository;
     }
+    async ResponseWithError(message: string, error: any) {
+        return errorResponse(404, { message, error });
+    }
     async createProduct(event: APIGatewayEvent) {
         const input = plainToInstance(ProductInput, JSON.parse(event.body!));
         const error = await appValidationError(input);
