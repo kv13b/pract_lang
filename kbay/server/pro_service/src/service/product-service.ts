@@ -5,6 +5,7 @@ import { plainToInstance } from "class-transformer";
 import { ProductInput } from "../dto/product-input";
 import { appValidationError } from "../utility/error";
 import { CategoryRepository } from "../repository/category-repository";
+import { ServiceInput } from "../dto/service-input";
 
 export class ProductService {
     _repository: ProductRepository;
@@ -52,5 +53,13 @@ export class ProductService {
         await new CategoryRepository().removeItem({ id: category_id, products: [productId] });
         return successResponse(deleteResult);
     }
-
+    async handleQueueOperation(event: APIGatewayEvent) {
+        const input = plainToInstance(ServiceInput, event.body!);
+        const error = await appValidationError(input);
+        if (error) return errorResponse(404, { message: "validation error", error });
+        console.log(input,"input")
+        const { _id, name, price, image_url } = await this._repository.getProductById(input.productId) as any;
+        console.log({ _id, name, price, image_url },"data")
+        return successResponse({ product_id: _id, name, price, image_url })
+    }
 }

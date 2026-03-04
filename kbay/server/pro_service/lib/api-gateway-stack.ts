@@ -8,6 +8,7 @@ interface APiGatewayStackProps {
     categoryService: IFunction;
     dealsService: IFunction;
     imageService: IFunction;
+    queueService: IFunction;
 }
 
 interface ResourceType {

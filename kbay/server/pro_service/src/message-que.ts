@@ -11,5 +11,5 @@ export const handler = middy((event: APIGatewayEvent,
     Context: Context): Promise<APIGatewayProxyResult> => {
     console.log(`Received event: ${JSON.stringify(event)}`);
     console.log(`Context: ${JSON.stringify(Context)}`);
-    return service.ResponseWithError("Method not supported", "Unsupported method");
+    return service.handleQueueOperation(event);
 }).use(jsonBodyParser());

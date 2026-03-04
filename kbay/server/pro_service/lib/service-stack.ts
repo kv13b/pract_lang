@@ -4,16 +4,16 @@ import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-node
 import { Construct } from "constructs";
 import { join } from "path";
 
-interface ServiceProps{
-  bucket:string;
+interface ServiceProps {
+  bucket: string;
 }
 export class ServiceStack extends Construct {
   public readonly productService: NodejsFunction;
   public readonly categoryService: NodejsFunction;
   public readonly dealsService: NodejsFunction;
   public readonly imageService: NodejsFunction;
-
-  constructor(scope: Construct, id: string,props:ServiceProps) {
+  public readonly queueService: NodejsFunction;
+  constructor(scope: Construct, id: string, props: ServiceProps) {
     super(scope, id);
 
     const nodeJsFunctionProps: NodejsFunctionProps = {
@@ -52,9 +52,13 @@ export class ServiceStack extends Construct {
       entry: join(__dirname, "../src/deals-api.ts"),
       ...nodeJsFunctionProps,
     });
-    
+
     this.imageService = new NodejsFunction(this, "imageLambda", {
       entry: join(__dirname, "../src/image-api.ts"),
+      ...nodeJsFunctionProps,
+    });
+    this.queueService = new NodejsFunction(this, "msgQueueLambda", {
+      entry: join(__dirname, "../src/message-que.ts"),
       ...nodeJsFunctionProps,
     });
   }
