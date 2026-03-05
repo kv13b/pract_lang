@@ -25,7 +25,7 @@ export class APiGatewayStack extends Construct {
 
     addResources(
         serviceName: string,
-        { categoryService, productService, dealsService ,imageService}: APiGatewayStackProps
+        { categoryService, productService, dealsService ,imageService, queueService}: APiGatewayStackProps
     ) {
         const apgw = new aws_apigateway.RestApi(this, `${serviceName}-ApiGateway`);
         
@@ -63,6 +63,10 @@ export class APiGatewayStack extends Construct {
         this.createEndPoints(imageService, apgw.root, {
             name: "uploader",
             methods: ["GET"],
+        });
+        this.createEndPoints(queueService, apgw.root, {
+            name: "products-queue",
+            methods: ["POST"],
         });
     }
 

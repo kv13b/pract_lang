@@ -58,7 +58,9 @@ export class ProductService {
         const error = await appValidationError(input);
         if (error) return errorResponse(404, { message: "validation error", error });
         console.log(input,"input")
-        const { _id, name, price, image_url } = await this._repository.getProductById(input.productId) as any;
+        const product = await this._repository.getProductById(input.productId) as any;
+        if (!product) return errorResponse(404, { message: "product not found" });
+        const { _id, name, price, image_url } = product;
         console.log({ _id, name, price, image_url },"data")
         return successResponse({ product_id: _id, name, price, image_url })
     }

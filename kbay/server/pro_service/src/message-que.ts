@@ -12,4 +12,4 @@ export const handler = middy((event: APIGatewayEvent,
     console.log(`Received event: ${JSON.stringify(event)}`);
     console.log(`Context: ${JSON.stringify(Context)}`);
     return service.handleQueueOperation(event);
-}).use(jsonBodyParser());
+}).use(jsonBodyParser({ disableContentTypeError: true }));
