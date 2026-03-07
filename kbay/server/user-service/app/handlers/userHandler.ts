@@ -5,9 +5,11 @@ import { errorResponse } from "../utility/response";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import { container } from "tsyringe";
+import { CartService } from "../service/cartService";
 
 container.register("UserRepository", { useClass: UserRepository });
 const service = container.resolve(UserService);
+const cartService = container.resolve(CartService);
 
 const skipJsonParserOnGet = () => ({
     before: async (handler: any) => {
@@ -79,11 +81,14 @@ export const profile = middy((event: APIGatewayProxyEventV2) => {
 export const cart = middy((event: APIGatewayProxyEventV2) => {
     const httpMethod = event.requestContext.http.method;
     if (httpMethod === "POST") {
-        return service.CreateCart(event);
+        return cartService.CreateCart(event);
     } else if (httpMethod === "PUT") {
-        return service.UpdateCart(event);
+        return cartService.UpdateCart(event);
     } else if (httpMethod === "GET") {
-        return service.GetCart(event);
+        return cartService.GetCart(event);
+    }
+    else if (httpMethod === "DELETE") {
+        return cartService.DeleteCart(event);
     } else {
         return errorResponse(404, "Unsupported HTTP method for cart");
     }

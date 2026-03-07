@@ -222,16 +222,6 @@ export class UserService {
             return errorResponse(500, err);
         }
     }
-    //cart related methods
-    async CreateCart(event: APIGatewayProxyEventV2) {
-        return successResponse({ message: "Cart created successfully!" });
-    }
-    async UpdateCart(event: APIGatewayProxyEventV2) {
-        return successResponse({ message: "Cart updated successfully!" });
-    }
-    async GetCart(event: APIGatewayProxyEventV2) {
-        return successResponse({ message: "Cart retrieved successfully!" });
-    }
     //payment related methods
     async CreatePayment(event: APIGatewayProxyEventV2) {
         return successResponse({ message: "Payment created successfully!" });
