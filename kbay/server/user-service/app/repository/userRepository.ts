@@ -2,7 +2,7 @@ import type { UserModel } from "../models/UserModel";
 import { injectable } from "tsyringe";
 import { DBOperations } from "./dbOperations";
 import type { ProfileInput } from "../models/dto/AddressInput";
-import type { AddressModel } from "../models/AddressMode";
+import type { AddressModel } from "../models/AddressModel";
 @injectable()
 export class UserRepository extends DBOperations {
     constructor() {

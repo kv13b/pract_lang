@@ -1,4 +1,4 @@
-import type { AddressModel } from "./AddressMode";
+import type { AddressModel } from "./AddressModel";
 
 export interface UserModel {
     user_id?: number;

@@ -1,23 +1,11 @@
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { errorResponse, successResponse } from "../utility/response";
-import type { UserRepository } from "../repository/userRepository";
 import { autoInjectable } from "tsyringe";
-import { plainToClass, plainToInstance } from "class-transformer";
-import { SignUpInput } from "../models/dto/SignUpInput";
+import { plainToInstance } from "class-transformer";
 import { appValidationError } from "../utility/error";
-import {
-  getSalt,
-  GetToken,
-  hashPassword,
-  validatePassword,
-  VerifyToken,
-} from "../utility/password";
-import { LoginInput } from "../models/dto/LoginInput";
-import { GenerateAccessCode, SendVerification } from "../utility/notification";
-import { VerifyInput } from "../models/dto/UpdateInput";
-import { TimeDifference } from "../utility/datehelper";
-import { ProfileInput } from "../models/dto/AddressInput";
+import { VerifyToken } from "../utility/password";
 import type { CartRepository } from "../repository/CartRepository";
+import { CartInput } from "../models/dto/cartInput";
 
 @autoInjectable()
 export class CartService {
@@ -50,12 +38,12 @@ export class CartService {
       }
       const payload =
         typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-      const input = plainToInstance(ProfileInput, payload, {
+      const input = plainToInstance(CartInput, payload, {
         excludeExtraneousValues: true,
       });
       const errors = await appValidationError(input);
       if (errors) return errorResponse(404, errors);
-     
+
       return successResponse({ message: "User profile updated successfully!" });
     } catch (err) {
       return errorResponse(500, err);
