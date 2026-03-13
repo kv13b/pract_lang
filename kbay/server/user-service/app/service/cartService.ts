@@ -32,6 +32,13 @@ export class CartService {
         return errorResponse(403, "authorization failed");
       }
       const userId = tokenPayload.user_id;
+      if (!userId) {
+        return errorResponse(403, "Invalid user ID in token");
+      }
+      let currentCart = await this.repository.findShoppingCart(userId);
+      if (!currentCart) {
+        currentCart = await this.repository.createShoppingCart(userId);
+      }
 
       if (!event.body) {
         return errorResponse(400, "Request body is required");
