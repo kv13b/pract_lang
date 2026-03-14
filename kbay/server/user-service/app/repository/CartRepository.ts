@@ -34,8 +34,20 @@ export class CartRepository extends DBOperations {
       : false;
   }
   async findCartItems() {}
-  async createCartItem() {}
+  async createCartItem({cart_id, product_id, name, price, item_quantity,image_url}: CartItemModel) {
+    const queryString = "INSERT INTO cart_items (cart_id, product_id, name, price, quantity, image_url) VALUES (?, ?, ?, ?, ?, ?) RETURNING item_id";
+    const result = await this.executeQurery(queryString, [cart_id, product_id, name, price, item_quantity, image_url]);
+    return result.rowCount != null && result.rowCount > 0
+      ? (result.rows[0] as ShoppingCartModel)
+      : false;
+  }
   async updateCartItemById(ItemId: number, qty: number) {}
-  async updateCartItemByProductId(productId: number, qty: number) {}
+  async updateCartItemByProductId(productId: string, qty: number) {
+    const queryString = "UPDATE cart_items SET quantity = ? WHERE product_id = ? RETURNING item_id";
+    const result = await this.executeQurery(queryString, [qty, productId]);
+    return result.rowCount != null && result.rowCount > 0
+      ? (result.rows[0] as ShoppingCartModel)
+      : false;
+  }
   async deleteCartItemById(ItemId: number) {}
 }

@@ -6,6 +6,8 @@ import { appValidationError } from "../utility/error";
 import { VerifyToken } from "../utility/password";
 import type { CartRepository } from "../repository/CartRepository";
 import { CartInput } from "../models/dto/cartInput";
+import type { CartItemModel } from "../models/CartItemModel";
+import { cart } from "../handler";
 
 @autoInjectable()
 export class CartService {
@@ -35,10 +37,6 @@ export class CartService {
       if (!userId) {
         return errorResponse(403, "Invalid user ID in token");
       }
-      let currentCart = await this.repository.findShoppingCart(userId);
-      if (!currentCart) {
-        currentCart = await this.repository.createShoppingCart(userId);
-      }
 
       if (!event.body) {
         return errorResponse(400, "Request body is required");
@@ -48,6 +46,27 @@ export class CartService {
       const input = plainToInstance(CartInput, payload, {
         excludeExtraneousValues: true,
       });
+      let currentCart = await this.repository.findShoppingCart(userId);
+      if (!currentCart || typeof currentCart !== "object" || !("cart_id" in currentCart)) {
+        currentCart = await this.repository.createShoppingCart(userId);
+      }
+      let currentProduct = await this.repository.findCartItemByProductId(input.productId);
+      if (currentProduct) {
+        await this.repository.updateCartItemByProductId(
+          input.productId,
+          (currentProduct.item_quantity += input.qty)
+        );
+      } else {
+        const cartItem: CartItemModel = {
+          product_id: Number(input.productId),
+          name: "",
+          image_url: "",
+          price: 0,
+          item_quantity: input.qty,
+          cart_id: (currentCart as any).cart_id,
+        };
+        await this.repository.createCartItem(cartItem);
+      }
       const errors = await appValidationError(input);
       if (errors) return errorResponse(404, errors);
 
