@@ -8,6 +8,7 @@ import type { CartRepository } from "../repository/CartRepository";
 import { CartInput } from "../models/dto/cartInput";
 import type { CartItemModel } from "../models/CartItemModel";
 import { cart } from "../handler";
+import { PullData } from "../message-queue";
 
 @autoInjectable()
 export class CartService {
@@ -47,25 +48,41 @@ export class CartService {
         excludeExtraneousValues: true,
       });
       let currentCart = await this.repository.findShoppingCart(userId);
-      if (!currentCart || typeof currentCart !== "object" || !("cart_id" in currentCart)) {
+      if (
+        !currentCart ||
+        typeof currentCart !== "object" ||
+        !("cart_id" in currentCart)
+      ) {
         currentCart = await this.repository.createShoppingCart(userId);
       }
-      let currentProduct = await this.repository.findCartItemByProductId(input.productId);
+      let currentProduct = await this.repository.findCartItemByProductId(
+        input.productId,
+      );
       if (currentProduct) {
         await this.repository.updateCartItemByProductId(
           input.productId,
-          (currentProduct.item_quantity += input.qty)
+          (currentProduct.item_quantity += input.qty),
         );
       } else {
-        const cartItem: CartItemModel = {
-          product_id: Number(input.productId),
-          name: "",
-          image_url: "",
-          price: 0,
-          item_quantity: input.qty,
-          cart_id: (currentCart as any).cart_id,
-        };
-        await this.repository.createCartItem(cartItem);
+        const {
+          data: { data },
+          status,
+        } = await PullData({
+          action: "get_product_details",
+          productId: input.productId,
+        });
+        console.log("Response from product service:", data, "Status:", status);
+        if (status !== 200) {
+          return errorResponse(404, "Product not found");
+        }
+        let cartItem = data.data as CartItemModel;
+        if (currentCart) {
+          cartItem.cart_id = currentCart.cart_id;
+          cartItem.item_quantity = input.qty;
+          await this.repository.createCartItem(cartItem);
+        }else{
+          return errorResponse(404, "Cart not found");
+        } 
       }
       const errors = await appValidationError(input);
       if (errors) return errorResponse(404, errors);
